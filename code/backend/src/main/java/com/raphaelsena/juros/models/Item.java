@@ -24,7 +24,7 @@ public class Item {
 
     private Double valor;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "conta_id")
     @JsonIgnore
     private Conta conta;

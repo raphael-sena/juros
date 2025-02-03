@@ -25,6 +25,6 @@ public class Conta {
 
     private Double valorPago;
 
-    @OneToMany(mappedBy = "conta")
+    @OneToMany(mappedBy = "conta", fetch = FetchType.EAGER)
     private List<Item> itens = new ArrayList<>();
 }

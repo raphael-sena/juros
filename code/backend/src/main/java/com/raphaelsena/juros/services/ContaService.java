@@ -23,6 +23,16 @@ public class ContaService {
     private ItemRepository itemRepository;
 
     @Transactional
+    public Conta findById(Long id) {
+        return contaRepository.findById(id).orElse(null);
+    }
+
+    @Transactional
+    public List<Conta> listar() {
+        return contaRepository.findAll();
+    }
+
+    @Transactional
     public Conta create(ContaCreateDTO obj) {
         Conta conta = new Conta();
         conta.setValorTotal(0.0);

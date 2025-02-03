@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/conta")
 public class ContaController {
@@ -14,9 +16,22 @@ public class ContaController {
     @Autowired
     private ContaService contaService;
 
+    @GetMapping
+    public ResponseEntity<List<Conta>> listar() {
+        List<Conta> contas = contaService.listar();
+        return ResponseEntity.ok(contas);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Conta> getConta(@PathVariable Long id) {
+        Conta conta = contaService.findById(id);
+        return ResponseEntity.ok(conta);
+    }
+
     @PostMapping
     public ResponseEntity<Conta> create(@RequestBody ContaCreateDTO obj) {
         Conta conta = contaService.create(obj);
         return ResponseEntity.ok(conta);
     }
+
 }
