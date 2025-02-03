@@ -1,7 +1,6 @@
 package com.raphaelsena.juros.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.raphaelsena.juros.models.enums.Tipo;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,14 +19,18 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDate data;
+    private LocalDate dataLimitePagamento;
 
     private Double valor;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    private LocalDate dataPagamento;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "conta_id")
     @JsonIgnore
     private Conta conta;
 
-    private Tipo tipo;
+    private boolean pago;
+
+    private Double juros;
 }

@@ -19,12 +19,14 @@ public class Conta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Double valorTotal;
+    private Double valorTotalSemJuros;
+
+    private Double valorTotalComJuros;
 
     private Double valorPendente;
 
     private Double valorPago;
 
-    @OneToMany(mappedBy = "conta", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "conta", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Item> itens = new ArrayList<>();
 }
