@@ -1,5 +1,6 @@
 package com.raphaelsena.juros.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,6 +28,6 @@ public class Conta {
 
     private Double valorPago;
 
-    @OneToMany(mappedBy = "conta", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "conta", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Item> itens = new ArrayList<>();
 }

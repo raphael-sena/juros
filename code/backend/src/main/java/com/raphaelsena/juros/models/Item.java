@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "tb_item")
@@ -23,14 +25,23 @@ public class Item {
 
     private Double valor;
 
-    private LocalDate dataPagamento;
+    private Double valorTotal;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    private Double valorPago = 0.0;
+
+    private Double valorPendente;
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "conta_id")
     @JsonIgnore
     private Conta conta;
 
+    private Long diasAtrasados;
+
     private boolean pago;
 
     private Double juros;
+
+    @OneToMany(mappedBy = "item", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private List<Pagamento> pagamentos = new ArrayList<>();
 }
