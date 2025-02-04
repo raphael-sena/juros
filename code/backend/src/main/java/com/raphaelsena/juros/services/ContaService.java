@@ -4,7 +4,6 @@ import com.raphaelsena.juros.models.Conta;
 import com.raphaelsena.juros.models.Item;
 import com.raphaelsena.juros.models.Pagamento;
 import com.raphaelsena.juros.models.dtos.ContaCreateDTO;
-import com.raphaelsena.juros.models.dtos.ContaDTO;
 import com.raphaelsena.juros.models.dtos.PagamentoDTO;
 import com.raphaelsena.juros.repositories.ContaRepository;
 import com.raphaelsena.juros.repositories.ItemRepository;
@@ -34,22 +33,7 @@ public class ContaService {
 
     @Transactional
     public Conta findById(Long id) {
-        Conta conta = contaRepository.findById(id).orElse(null);
-
-        if (conta != null) {
-            double totalJuros = 0.0;
-
-            for (Item item : conta.getItens()) {
-                double jurosCalculado = calcularJuros(item);
-                item.setJuros(jurosCalculado);
-                itemRepository.save(item);
-                totalJuros += jurosCalculado;
-            }
-
-            conta.setValorTotalComJuros(conta.getValorTotalSemJuros() + totalJuros);
-        }
-
-        return conta;
+        return contaRepository.findById(id).orElse(null);
     }
 
 
@@ -98,16 +82,16 @@ public class ContaService {
 
     private Double calcularValorPago(Conta conta) {
         return conta.getItens().stream()
-                .filter(item -> !item.getPagamentos().isEmpty())
-                .mapToDouble(i -> i.getPagamentos().stream()
-                        .mapToDouble(Pagamento::getValor)
-                        .sum())
+                .mapToDouble(Item::getValorPago)
                 .sum();
     }
 
-    private Double calcularValorPendente(Conta conta) {
-        return conta.getValorTotalComJuros() - (conta.getValorPago() != null ? conta.getValorPago() : 0.0);
+    private double calcularValorPendente(Conta conta) {
+        return conta.getItens().stream()
+                .mapToDouble(Item::getValorPendente)
+                .sum();
     }
+
 
     private Double calcularJuros(Item item) {
         if (item.getDataLimitePagamento() == null || item.isPago()) {
@@ -139,7 +123,9 @@ public class ContaService {
     public Long calcularDiasAtrasados(Item item) {
         if (item.getDataLimitePagamento() != null || !item.isPago()) {
             assert item.getDataLimitePagamento() != null;
-            return ChronoUnit.DAYS.between(item.getDataLimitePagamento(), LocalDate.now());
+            if (item.getDataLimitePagamento().isBefore(LocalDate.now())) {
+                return ChronoUnit.DAYS.between(item.getDataLimitePagamento(), LocalDate.now());
+            }
         }
         return 0L;
     }
@@ -152,14 +138,12 @@ public class ContaService {
         pagamento.setDataPagamento(obj.getDataPagamento());
         pagamentoRepository.save(pagamento);
 
-        double jurosCalculados = calcularJuros(item);
-        item.setJuros(jurosCalculados);
-
         double novoValorPago = item.getValorPago() + obj.getValor();
-        double novoValorPendente = item.getValor() - novoValorPago;
+        double novoValorPendente = item.getValorTotal() - novoValorPago;
 
         item.setValorPago(novoValorPago);
         item.setValorPendente(novoValorPendente);
+        item.setJuros(calcularJuros(item));
         item.setDiasAtrasados(calcularDiasAtrasados(item));
 
         if (item.getValorPendente() < 1 || item.isPago()) {
@@ -171,13 +155,13 @@ public class ContaService {
 
         Conta conta = item.getConta();
 
-        // Atualizar valores da Conta
+        conta.setValorTotalComJuros(0.0);
         for (Item i : conta.getItens()) {
-            i.setConta(conta);
             i.setJuros(calcularJuros(i));
             i.setDiasAtrasados(calcularDiasAtrasados(i));
+
             conta.setValorTotalComJuros(conta.getValorTotalComJuros() + i.getValorTotal());
-            contaRepository.save(conta);
+            conta.setValorPago(calcularValorPago(conta));
             itemRepository.save(i);
         }
 
@@ -186,4 +170,5 @@ public class ContaService {
 
         return pagamento;
     }
+
 }
