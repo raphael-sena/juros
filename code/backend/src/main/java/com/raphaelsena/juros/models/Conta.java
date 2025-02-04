@@ -38,6 +38,8 @@ public class Conta {
 
     private Double valorPago;
 
+    private Double juros;
+
     @OneToMany(mappedBy = "conta", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Item> itens = new ArrayList<>();
 }

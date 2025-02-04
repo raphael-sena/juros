@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Service
 public class ContaService {
 
-    private static final Double TAXA_JUROS_DIARIA = 0.02;
+    private static final Double TAXA_JUROS_DIARIA = 0.0016;
 
     @Autowired
     private ContaRepository contaRepository;
@@ -33,22 +33,26 @@ public class ContaService {
 
     @Transactional
     public Conta findById(Long id) {
+
         return contaRepository.findById(id).orElse(null);
     }
 
 
     @Transactional
     public List<Conta> listar() {
+
         return contaRepository.findAll();
     }
 
     @Transactional
     public Conta create(ContaCreateDTO obj) {
+
         Conta conta = new Conta();
         conta.setValorTotalSemJuros(0.0);
         conta.setValorTotalComJuros(0.0);
         conta.setValorPendente(0.0);
         conta.setValorPago(0.0);
+        conta.setJuros(0.0);
         conta = contaRepository.save(conta);
 
         Conta contaTemp = conta;
@@ -69,8 +73,16 @@ public class ContaService {
         conta.setValorTotalComJuros(contaTemp.getValorTotalComJuros());
         conta.setValorPendente(calcularValorPendente(conta));
         conta.setValorPago(calcularValorPago(conta));
+        conta.setJuros(calcularValorJurosTotal(conta));
 
         return contaRepository.save(conta);
+    }
+
+    private Double calcularValorJurosTotal(Conta conta) {
+
+        return conta.getItens().stream()
+                .mapToDouble(Item::getJuros)
+                .sum();
     }
 
     private Double calcularValorTotalSemJuros(List<Item> itens) {
@@ -81,12 +93,14 @@ public class ContaService {
     }
 
     private Double calcularValorPago(Conta conta) {
+
         return conta.getItens().stream()
                 .mapToDouble(Item::getValorPago)
                 .sum();
     }
 
     private double calcularValorPendente(Conta conta) {
+
         return conta.getItens().stream()
                 .mapToDouble(Item::getValorPendente)
                 .sum();
@@ -94,6 +108,7 @@ public class ContaService {
 
 
     private Double calcularJuros(Item item) {
+
         if (item.getDataLimitePagamento() == null || item.isPago()) {
             return 0.0;
         }
@@ -121,6 +136,7 @@ public class ContaService {
 
 
     public Long calcularDiasAtrasados(Item item) {
+
         if (item.getDataLimitePagamento() != null || !item.isPago()) {
             assert item.getDataLimitePagamento() != null;
             if (item.getDataLimitePagamento().isBefore(LocalDate.now())) {
@@ -132,6 +148,7 @@ public class ContaService {
 
     @Transactional
     public Pagamento efetuarPagamento(Item item, PagamentoDTO obj) {
+
         Pagamento pagamento = new Pagamento();
         pagamento.setItem(item);
         pagamento.setValor(obj.getValor());
