@@ -40,6 +40,13 @@ public class ContaController {
         return ResponseEntity.ok(conta);
     }
 
+    @GetMapping("/{id}/itens")
+    public ResponseEntity<List<Item>> getContaItens(@PathVariable Long id) {
+        Conta conta = contaService.findById(id);
+        List<Item> itens = conta.getItens();
+        return ResponseEntity.ok(itens);
+    }
+
     @PostMapping
     public ResponseEntity<Conta> create(@RequestBody ContaCreateDTO obj) {
         Conta conta = contaService.create(obj);
