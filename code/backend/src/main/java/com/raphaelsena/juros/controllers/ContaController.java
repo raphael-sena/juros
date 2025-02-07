@@ -4,17 +4,13 @@ import com.raphaelsena.juros.models.Conta;
 import com.raphaelsena.juros.models.Item;
 import com.raphaelsena.juros.models.Pagamento;
 import com.raphaelsena.juros.models.dtos.ContaCreateDTO;
+import com.raphaelsena.juros.models.dtos.ItemDTO;
 import com.raphaelsena.juros.models.dtos.PagamentoDTO;
 import com.raphaelsena.juros.services.ContaService;
 import com.raphaelsena.juros.services.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -60,4 +56,10 @@ public class ContaController {
         return ResponseEntity.ok(pagamento);
     }
 
+    @PutMapping("/{id}/itens/{itemId}")
+    public ResponseEntity<Item> atualizarItem (@PathVariable Long id, @PathVariable Long itemId, @RequestBody ItemDTO obj) {
+        Conta conta = contaService.findById(id);
+        Item item = itemService.findById(itemId);
+        return ResponseEntity.ok(itemService.atualizarItem(conta, item, obj));
+    }
 }

@@ -78,14 +78,14 @@ public class ContaService {
         return contaRepository.save(conta);
     }
 
-    private Double calcularValorJurosTotal(Conta conta) {
+    public Double calcularValorJurosTotal(Conta conta) {
 
         return conta.getItens().stream()
                 .mapToDouble(Item::getJuros)
                 .sum();
     }
 
-    private Double calcularValorTotalSemJuros(List<Item> itens) {
+    public Double calcularValorTotalSemJuros(List<Item> itens) {
 
         return itens.stream()
                 .mapToDouble(Item::getValor)
@@ -99,7 +99,7 @@ public class ContaService {
                 .sum();
     }
 
-    private double calcularValorPendente(Conta conta) {
+    public double calcularValorPendente(Conta conta) {
 
         return conta.getItens().stream()
                 .mapToDouble(Item::getValorPendente)
@@ -107,7 +107,7 @@ public class ContaService {
     }
 
 
-    private Double calcularJuros(Item item) {
+    public Double calcularJuros(Item item) {
 
         if (item.getDataLimitePagamento() == null || item.isPago()) {
             return 0.0;
