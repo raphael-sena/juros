@@ -30,6 +30,10 @@ public class Conta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String titulo;
+
+    private String descricao;
+
     private Double valorTotalSemJuros;
 
     private Double valorTotalComJuros;

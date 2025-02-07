@@ -8,6 +8,7 @@ import com.raphaelsena.juros.models.dtos.ItemDTO;
 import com.raphaelsena.juros.models.dtos.PagamentoDTO;
 import com.raphaelsena.juros.services.ContaService;
 import com.raphaelsena.juros.services.ItemService;
+import com.raphaelsena.juros.services.PagamentoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,9 @@ public class ContaController {
 
     @Autowired
     private ItemService itemService;
+
+    @Autowired
+    private PagamentoService pagamentoService;
 
     @GetMapping
     public ResponseEntity<List<Conta>> listar() {
@@ -47,13 +51,6 @@ public class ContaController {
     public ResponseEntity<Conta> create(@RequestBody ContaCreateDTO obj) {
         Conta conta = contaService.create(obj);
         return ResponseEntity.ok(conta);
-    }
-
-    @PostMapping("/pagamentos/{itemId}")
-    public ResponseEntity<Pagamento> pagar(@RequestBody PagamentoDTO obj, @PathVariable Long itemId) {
-        Item item = itemService.findById(itemId);
-        Pagamento pagamento = contaService.efetuarPagamento(item, obj);
-        return ResponseEntity.ok(pagamento);
     }
 
     @PutMapping("/{id}/itens/{itemId}")

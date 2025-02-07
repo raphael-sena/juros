@@ -12,4 +12,6 @@ import java.util.List;
 @Getter
 public class ContaCreateDTO {
     private List<Item> itens;
+    private String titulo;
+    private String descricao;
 }

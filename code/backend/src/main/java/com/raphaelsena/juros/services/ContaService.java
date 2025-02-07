@@ -53,6 +53,8 @@ public class ContaService {
         conta.setValorPendente(0.0);
         conta.setValorPago(0.0);
         conta.setJuros(0.0);
+        conta.setTitulo("");
+        conta.setDescricao("");
         conta = contaRepository.save(conta);
 
         Conta contaTemp = conta;
@@ -68,6 +70,8 @@ public class ContaService {
                 }).collect(Collectors.toList());
 
 
+        conta.setTitulo(obj.getTitulo());
+        conta.setDescricao(obj.getDescricao());
         conta.setItens(itens);
         conta.setValorTotalSemJuros(calcularValorTotalSemJuros(conta.getItens()));
         conta.setValorTotalComJuros(contaTemp.getValorTotalComJuros());
@@ -92,7 +96,7 @@ public class ContaService {
                 .sum();
     }
 
-    private Double calcularValorPago(Conta conta) {
+    public Double calcularValorPago(Conta conta) {
 
         return conta.getItens().stream()
                 .mapToDouble(Item::getValorPago)
@@ -145,47 +149,4 @@ public class ContaService {
         }
         return 0L;
     }
-
-    @Transactional
-    public Pagamento efetuarPagamento(Item item, PagamentoDTO obj) {
-
-        Pagamento pagamento = new Pagamento();
-        pagamento.setItem(item);
-        pagamento.setValor(obj.getValor());
-        pagamento.setDataPagamento(obj.getDataPagamento());
-        pagamentoRepository.save(pagamento);
-
-        double novoValorPago = item.getValorPago() + obj.getValor();
-        double novoValorPendente = item.getValorTotal() - novoValorPago;
-
-        item.setValorPago(novoValorPago);
-        item.setValorPendente(novoValorPendente);
-        item.setJuros(calcularJuros(item));
-        item.setDiasAtrasados(calcularDiasAtrasados(item));
-
-        if (item.getValorPendente() < 1 || item.isPago()) {
-            item.setPago(true);
-            item.setValorPendente(0.0);
-        }
-
-        itemRepository.save(item);
-
-        Conta conta = item.getConta();
-
-        conta.setValorTotalComJuros(0.0);
-        for (Item i : conta.getItens()) {
-            i.setJuros(calcularJuros(i));
-            i.setDiasAtrasados(calcularDiasAtrasados(i));
-
-            conta.setValorTotalComJuros(conta.getValorTotalComJuros() + i.getValorTotal());
-            conta.setValorPago(calcularValorPago(conta));
-            itemRepository.save(i);
-        }
-
-        conta.setValorPendente(calcularValorPendente(conta));
-        contaRepository.save(conta);
-
-        return pagamento;
-    }
-
 }
