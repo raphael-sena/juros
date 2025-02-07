@@ -54,4 +54,36 @@ public class ItemService {
 
         return item;
     }
+
+    @Transactional
+    public void excluirItem(Conta conta, Item item) {
+
+        conta = contaService.findById(conta.getId());
+
+        item = findById(item.getId());
+
+        Item finalItem = item;
+        boolean pertence = conta.getItens().stream()
+                .anyMatch(i -> i.getId().equals(finalItem.getId()));
+
+        if (!pertence) {
+            throw new RuntimeException("O item não pertence a esta conta.");
+        }
+
+        conta.getItens().removeIf(i -> i.getId().equals(finalItem.getId()));
+        contaRepository.save(conta);
+        itemRepository.delete(item);
+        itemRepository.flush();
+
+        List<Item> itensAtualizados = itemRepository.findByConta(conta);
+        conta.getItens().clear();
+        conta.getItens().addAll(itensAtualizados);
+
+        conta.setValorTotalSemJuros(contaService.calcularValorTotalSemJuros(conta.getItens()));
+        conta.setJuros(contaService.calcularValorJurosTotal(conta));
+        conta.setValorTotalComJuros(conta.getValorTotalSemJuros() + conta.getJuros());
+        conta.setValorPendente(contaService.calcularValorPendente(conta));
+
+        contaRepository.save(conta);
+    }
 }

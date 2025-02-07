@@ -62,4 +62,12 @@ public class ContaController {
         Item item = itemService.findById(itemId);
         return ResponseEntity.ok(itemService.atualizarItem(conta, item, obj));
     }
+
+    @DeleteMapping("/{id}/itens/{itemId}")
+    public ResponseEntity<Void> excluirItem (@PathVariable Long id, @PathVariable Long itemId) {
+        Conta conta = contaService.findById(id);
+        Item item = itemService.findById(itemId);
+        itemService.excluirItem(conta, item);
+        return ResponseEntity.noContent().build();
+    }
 }

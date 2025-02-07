@@ -40,6 +40,6 @@ public class Conta {
 
     private Double juros;
 
-    @OneToMany(mappedBy = "conta", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "conta", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Item> itens = new ArrayList<>();
 }
